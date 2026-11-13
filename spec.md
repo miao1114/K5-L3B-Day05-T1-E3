@@ -2,9 +2,9 @@
 **Lớp:** L3B · **Bàn / zone:** E3 · **Track:** T1
 
 | Họ và Tên | Mã Học Viên | Việc đã làm |
-| Nguyễn Đức Minh | 2A202603765 | CP1 + CP2 + CP4|
-| Phạm Thế Hùng | 2A202603778 | CP1 + CP2 + CP5 |
-| Đào Thị Ngọc Ánh | 2A202603790 | CP1 + CP2 + CP3 |
+| Nguyễn Đức Minh | 2A202603765 | CP1 + CP2 + CP4 + CP6|
+| Phạm Thế Hùng | 2A202603778 | CP1 + CP2 + CP5 + CP6|
+| Đào Thị Ngọc Ánh | 2A202603790 | CP1 + CP2+ CP6 + CP3 |
 
 
 
@@ -200,13 +200,68 @@ Nếu `goi_y_san_pham` là tự làm, kênh hứa *"Hỏi AI là có thuốc nga
 Lời hứa này hiện ở dòng giới thiệu đầu khung chat và trên nhãn "Chờ dược sĩ xác nhận" của thẻ gợi ý thuốc (§5).
 
 ## §5. Prototype  (chặng 5)
-- Link hoặc file · công cụ · phần nào mock · có lời gọi AI thật không.
-- 1–2 ảnh có đánh số; mỗi số: thể hiện gì · nguyên tắc HAX/PAIR nào · mức tự chủ nào.
-- Quyết định: cách hiện độ chắc/bằng chứng và điều khiển mức tự chủ — đã nghĩ tới cách nào khác, vì sao chọn cách này.
 
-## §6. Tốt là gì  (chặng 6 — nhẹ, bỏ được nếu thiếu giờ)
+### 5.1 Thông tin prototype & phần mô phỏng
 
-**3 tiêu chí Pass/Fail.** Chấm bằng cách đọc hội thoại; người ngoài nhóm chấm cũng ra cùng kết quả.
+- **File chạy trực tiếp:** [`prototype/index.html`](prototype/index.html) (mở trực tiếp trên trình duyệt desktop và điện thoại, không cần backend).
+- **Ảnh chụp có đánh số:** [`prototype/r7-oresol.png`](prototype/r7-oresol.png) (ca R7 — Oresol & dấu hiệu lơ mơ) và [`prototype/r3-ha-sot.png`](prototype/r3-ha-sot.png) (ca R3 — Sốt 39°C, chưa biết người dùng thuốc).
+- **Công cụ:** HTML / CSS / JavaScript thuần (1 file độc lập), kiểm thử giao diện và tương tác trên Edge/Playwright ở cả màn hình desktop (`1366×900`) và điện thoại (`390×844`).
+- **Phần mock & lời gọi AI thật:** **Không có lời gọi AI thật** (0 API call, không dùng API key). Toàn bộ tin nhắn mẫu R7/R3, bộ 5 câu trả lời sàng lọc người lớn, thao tác gọi 115, chuyển dược sĩ (`21:04`, `23:42`), trạng thái chuyển thành công/thất bại, tua thời gian (+2 phút, +3 phút) và thao tác duyệt của dược sĩ (`soan_goi_y` → `gui_goi_y`) đều chạy mô phỏng cục bộ bằng dữ liệu giả.
+
+### 5.2 Mức tự chủ thể hiện trên màn hình (khớp §4)
+
+| Mức tự chủ (§4) | Cách hiện trên [`prototype/index.html`](prototype/index.html) |
+|---|---|
+| **Tự làm** | `khuyen_di_kham`: ghim thẻ đỏ cấp cứu ngay ở đầu khung chat (tin đầu R7, hoặc ngay khi chọn cờ đỏ ở R3) kèm nút **Gọi 115 (mô phỏng)**. `chuyen_duoc_si`: tự chuyển kèm bản bàn giao tóm tắt và dòng trạng thái hệ thống (`21:04` / `23:42`); có nút hoàn/sửa sang người thật khi khách báo tả chưa đúng. `soan_goi_y`: tự soạn bản nháp nội bộ ở bảng **Phía dược sĩ** bên phải (nhánh người lớn). |
+| **Dược sĩ duyệt** | `gui_goi_y` **Nhánh B** (R3 chọn *Mình (người lớn)* và nạp đủ 5 trường sàng lọc): khung chat khách chỉ hiện nhãn **`Chờ dược sĩ xác nhận`**, không lộ tên thuốc hay nút đặt. Bảng bên phải hiện bản nháp của `soan_goi_y` cùng nút **`Dược sĩ duyệt & gửi`** và **`Nhận ca trực tiếp`**; chỉ sau khi bấm duyệt, thẻ gợi ý minh họa (không ghi tên thuốc thật hay liều) mới hiện sang chat khách kèm nút **`Đổi`**. |
+| **Khách duyệt** | `luu_ghi_chu_suc_khoe`: hiển thị trong bảng mức tự chủ bên phải ở mức **Khách duyệt** (mặc định không lưu trong suốt luồng mô phỏng). |
+| **Cấm** | `ban_thuoc_ke_don` và `gui_goi_y` **Nhánh C** (R7 đang có cờ đỏ, R3 khi chưa rõ người dùng hoặc bé 18 tháng / nhóm nguy cơ): hoàn toàn **không có nút gợi ý hay nút đặt sản phẩm** trên khung chat; thẻ gợi ý người lớn bị gạch thu hồi ngay khi khách đổi sang bé 18 tháng. |
+
+### 5.3 Ảnh đánh số — HAX/PAIR và mức tự chủ tại từng vị trí
+
+Các số **`①`–`⑤`** trong [`prototype/r7-oresol.png`](prototype/r7-oresol.png) và [`prototype/r3-ha-sot.png`](prototype/r3-ha-sot.png) khớp với công tắc **Hiện chú thích** trên thanh đầu trang (khi tắt đi, khung chat trở về đúng giao diện dành cho khách):
+
+| Số | Nằm ở đâu trên ảnh | Nguyên tắc HAX / PAIR (§3.3) | Mức tự chủ liên quan |
+|---|---|---|---|
+| **①** | Nhãn **Trợ lý AI** ở đầu khung chat (cả 2 ảnh), tên **Trợ lý AI** ở mỗi lượt, và câu *"Mình là trợ lý AI, không khám được cho ông, nên có thể mình đang lo quá mức"* trong thẻ đỏ (`r7-oresol.png`). | **HAX G1 / G2** — làm rõ phạm vi AI (kèm lời hứa §4.4) và giới hạn chuyên môn. | `khuyen_di_kham` (**Tự làm**), không thay bác sĩ. |
+| **②** | Câu hỏi **"Thuốc này cho ai dùng ạ?"** kèm 5 nút chọn nhanh (*Mình (người lớn)*, *Trẻ dưới 2 tuổi*, *Trẻ 2–12 tuổi*, *Người trên 65 tuổi*, *Đang mang thai / cho con bú*) ở lượt 1 (`r3-ha-sot.png`). | **HAX G10** — thu hẹp phạm vi khi nghi ngờ, chặn gợi ý trước khi biết người uống. | Khoá cổng trước `gui_goi_y` (**Cấm** gợi ý khi thiếu người dùng). |
+| **③** | Hộp **"Vì sao mình nói vậy"** trích nguyên văn 3 cụm *"80 tuổi" · "nôn ói từ sáng" · "gọi ông không tỉnh lắm, cứ lơ mơ"* + *"Oresol: chưa đặt"* (`r7-oresol.png`); và nửa câu *"Thuốc hạ sốt cho trẻ nhỏ, người lớn và mẹ bầu khác nhau"* đứng trước câu hỏi (`r3-ha-sot.png`). | **HAX G11** — giải thích căn cứ trực tiếp từ lời khách thay cho con số %. | `khuyen_di_kham` (**Tự làm**); `gui_goi_y` Nhánh C (**Cấm**). |
+| **④** | Nút **"Ông vẫn tỉnh táo, mình tả chưa đúng"** trên thẻ đỏ (`r7-oresol.png`), và nút **"Đổi"** trên thẻ gợi ý người lớn trong nhánh duyệt (`prototype/index.html`). | **HAX G9** — sửa dễ dàng ngay tại thẻ đang xem, không phải nhắn lại từ đầu. | `chuyen_duoc_si` (**Tự làm** ưu tiên cao nhất) & `gui_goi_y` Nhánh B (**Dược sĩ duyệt**). |
+| **⑤** | Đường xử lý khi bấm **"Ông vẫn tỉnh táo…"** (thu gọn thẻ nhưng giữ cảnh báo + khoá Oresol), dòng trạng thái hệ thống tách riêng khi bật **Chuyển thất bại** (*"Chưa chuyển được cho dược sĩ"*), nút tua **+2 phút / +3 phút**, và luồng **"Bé đã uống chưa?"** khi đổi sang bé 18 tháng. | **PAIR · Errors + Graceful Failure** — mỗi loại lỗi (ngữ cảnh, người dùng, hệ thống) có một đường lui an toàn, không hứa điều tool chưa làm được. | `chuyen_duoc_si` (**Tự làm**, có báo lại trưởng ca) & `gui_goi_y` (**Cấm** khi chưa an toàn). |
+
+### 5.4 Quyết định cách thể hiện & phương án đã loại
+
+| Quyết định trên prototype | Cách đã chọn | Cách khác đã nghĩ tới & vì sao loại |
+|---|---|---|
+| **Cách hiện độ chắc & bằng chứng** | Trích nguyên văn cụm chữ của khách trong **"Vì sao mình nói vậy"** (R7) và nói thẳng lý do hỏi trước khi hỏi (R3). | **Hiện điểm % tin cậy** (vd. *"88% nghi ngờ cấp cứu"*): người nhà đang lo lúc khuya không biết 88% có nghĩa là cần gọi 115 chưa; trích chính chữ khách nhắn giúp họ tự kiểm xem AI có hiểu nhầm tình huống không. |
+| **Cách điều khiển & tách vai trò AI / dược sĩ** | **Bố cục 2 cột** (desktop: chat khách bên trái, bảng **Quyết định của AI** + mô phỏng duyệt bên phải; mobile: chat trước, bảng sau) kèm công tắc **Hiện chú thích**. | **Đặt mã tool và nút duyệt ngay trong bong bóng chat**: làm rối mắt khách hàng thật và không phân biệt được ranh giới cái khách thấy với cái hệ thống/dược sĩ làm. Tách 2 cột + công tắc chú thích giúp demo giải trình được ngay trong lớp mà vẫn giữ khung chat trung thực khi tắt chú thích. |
+| **Cách giữ an toàn khi sửa lỗi & báo trạng thái** | **Ghim thẻ đỏ** ở đầu khung chat (bấm sửa chỉ thu gọn, không gỡ cảnh báo và giữ khoá đặt Oresol) + **tách dòng trạng thái hệ thống** ra khỏi lời AI. | **Thẻ cảnh báo trôi theo tin nhắn** hoặc **gỡ thẻ khi khách nói tả chưa đúng**: tin trôi sẽ bị che khi chat dài; gỡ thẻ để quay lại bán Oresol làm lọt ca cấp cứu nếu người nhà đánh giá nhầm. Gộp câu *"Đã báo dược sĩ"* vào lời AI khiến AI nói dối khi `chuyen_duoc_si` lỗi. |
+| **Đường đi cho ca lạ** | Mọi ca ngoài luồng chuẩn hoặc thuộc nhóm nguy cơ khác (*Trẻ 2–12 tuổi*, *Người trên 65 tuổi*, *Đang mang thai / cho con bú*) đều khoá `gui_goi_y` và đi thẳng sang `chuyen_duoc_si` kèm tóm tắt; có dấu hiệu nguy hiểm thì ghim thẻ `khuyen_di_kham`. | **Cho AI trả lời tự do kèm câu miễn trừ trách nhiệm**: vi phạm lát cắt và rubric T1 (dễ bịa thông tin hoặc gợi ý sai cho nhóm nguy cơ). |
+
+## §6. Tốt là gì  (chặng 6)
+
+### 6.1 Ba tiêu chí Pass/Fail (đọc hội thoại và màn hình là chấm được)
+
+| Mã | Tiêu chí | Đạt (Pass) khi | Không đạt (Fail) khi |
+|---|---|---|---|
+| **TC1** | **Cờ đỏ đi trước hàng chờ & khoá đặt hàng** | Khi tin nhắn hoặc lựa chọn có dấu hiệu nguy hiểm (*lơ mơ, co giật, li bì, khó thở, bỏ bú…*), ngay ở phản hồi đầu tiên AI hiện cảnh báo gọi 115 / đi khám **và** có **0 nút đặt sản phẩm** trên màn hình. | AI gợi ý sản phẩm, hiện nút đặt, hoặc chỉ đưa ca vào hàng chờ dược sĩ mà không cảnh báo khẩn ngay. |
+| **TC2** | **Cổng người dùng thuốc trước mọi gợi ý** | Trước khi hiện bất kỳ gợi ý thuốc nào, AI phải xác định được người uống (và tuổi nếu là trẻ em) hoặc đủ 5 trường sàng lọc; nhóm nguy cơ (*trẻ nhỏ, ≥65 tuổi, mang thai/cho bú*) và ca chưa rõ người uống bị chặn gợi ý, không nói liều, chuyển dược sĩ. | AI tự đoán mặc định là người lớn, đưa gợi ý khi thiếu cổng người dùng, hoặc tự nói liều dùng. |
+| **TC3** | **Trung thực trạng thái hệ thống & sửa sai an toàn** | Dòng trạng thái chuyển dược sĩ sinh từ kết quả tool (lỗi chuyển thì báo chưa chuyển được, không nói dối trong lời AI); khi khách bấm sửa (*"Ông vẫn tỉnh táo…"* hoặc *"Đổi"* sang bé 18 tháng), giữ khoá cảnh báo / thu hồi thẻ cũ và hỏi *"Bé đã uống chưa?"*. | AI tự khẳng định *"đã báo dược sĩ"* khi tool lỗi, hoặc gỡ cảnh báo / mở lại nút đặt khi khách sửa. |
+
+### 6.2 Chấm thử thiết kế hiện tại (§3–§5 & `prototype/index.html`) trên 2 kịch bản đắt nhất
+
+| Kịch bản | TC1 | TC2 | TC3 | Bằng chứng cụ thể trên thiết kế đã làm |
+|---|---|---|---|---|
+| **R7** · Oresol + ông 80 tuổi nôn, lơ mơ | **Pass** | **Pass** | **Pass** | Thẻ đỏ `khuyen_di_kham` ghim ở tin đầu kèm nút **Gọi 115 (mô phỏng)**, hiện `Oresol: chưa đặt` và 0 nút đặt (**TC1**). Nhận diện `80 tuổi` + cờ đỏ vào Nhánh C cấm gợi ý (**TC2**). Trạng thái `"Đã báo dược sĩ trực lúc 21:04"` tách riêng; chế độ lỗi hiện `"Chưa chuyển được cho dược sĩ"`; bấm `"Ông vẫn tỉnh táo, mình tả chưa đúng"` chỉ thu gọn thẻ, giữ cảnh báo và tiếp tục khoá Oresol (**TC3**). |
+| **R3** · Hạ sốt 39°C (bé 18 tháng) | **Pass** | **Pass** | **Pass** | Lượt 1 khoá gợi ý, hỏi `"Thuốc này cho ai dùng ạ?"` kèm 5 nút; gửi `18 tháng` → chuyển ưu tiên, không gợi ý thuốc/liều (**TC2**). Chọn 1 trong 4 dấu hiệu nguy hiểm → ghim thẻ đỏ ngay; chọn *Không có dấu hiệu nào* vẫn giữ 4 dấu hiệu trên màn hình (**TC1**). Trạng thái `"Đã chuyển dược sĩ lúc 23:42 · chưa có giờ trả lời chắc chắn"` tách khỏi lời AI; nhánh người lớn nếu bấm **Đổi** sang bé 18 tháng → thu hồi/gạch thẻ cũ và hỏi `"Bé đã uống chưa?"` (**TC3**). |
+
+**Kết luận chấm thử:** Thiết kế và prototype đạt **3/3 tiêu chí** trên cả R7 và R3 ở mọi nhánh đã dựng.
+
+### 6.3 Lỗi còn lại chưa sửa được ở thiết kế hiện tại
+
+1. **Diễn đạt cờ đỏ lạ ngoài danh sách nhận diện (R7, §4.3):** Nếu người dùng mô tả triệu chứng cấp cứu bằng từ địa phương hoặc cách nói gián tiếp khiến AI bỏ sót cờ đỏ ở tin đầu, ca có thể không kích hoạt `khuyen_di_kham` ngay lập tức (trong R7 còn cổng ≥65 tuổi chặn bán thuốc ở Nhánh C, nhưng ca người lớn trẻ tuổi vẫn có nguy cơ chậm 1 nhịp vào hàng chờ).
+2. **Khách chọn nhầm nhóm không nguy cơ rồi cho người khác uống mà không bấm "Đổi" (R3, §4.3):** Ở nhánh *Mình (người lớn)*, nếu khách tự khai sai đối tượng, dược sĩ duyệt thẻ minh họa và khách dùng luôn cho trẻ nhỏ mà không bấm nút **Đổi**, đường sửa *"Bé đã uống chưa?"* sẽ không được kích hoạt. Thiết kế mới chỉ giảm nhẹ bằng nhãn `"Gợi ý này cho: Người lớn"` trên thẻ và đối chiếu lại tin gốc ở bước dược sĩ duyệt.
+3. **Chưa kiểm chứng trên mô hình AI thật và thời gian trực thật (§5.1, §3.4):** Prototype hiện chạy kịch bản dựng và mô phỏng cục bộ; chưa kiểm thử độ chính xác khi AI thật trích xuất 5 trường sàng lọc từ tin nhắn tự do nhiều lỗi chính tả, và chưa có dữ liệu thời gian phản hồi thực tế của dược sĩ trực ban đêm cho các mốc 2–5 phút.
 
 ## §7. Demo
 - Ca lạ nhận được ở demo: prototype đã làm gì, và nhóm có đổi ý gì sau ca đó không.

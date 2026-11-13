@@ -1,0 +1,1850 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hỏi dược sĩ · Prototype Nhóm E3 (Track 1)</title>
+  <style>
+    :root {
+      --bg: #f5f7f6;
+      --surface: #ffffff;
+      --surface-soft: #f8faf9;
+      --ink: #16201e;
+      --muted: #54635f;
+      --line: #dce3e0;
+
+      /* Màu chủ đạo theo yêu cầu */
+      --teal: #0f766e;
+      --teal-dark: #115e59;
+      --teal-soft: #e6f4f1;
+      --teal-line: #99d5cb;
+
+      --amber: #b45309;
+      --amber-bg: #fffbeb;
+      --amber-line: #f59e0b;
+
+      --red: #b91c1c;
+      --red-solid: #dc2626;
+      --red-bg: #fef2f2;
+      --red-line: #fca5a5;
+
+      --user-bg: #134e4a;
+      --ann-bg: #c2410c;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Inter", "Segoe UI", -apple-system, BlinkMacSystemFont, sans-serif;
+      background: var(--bg);
+      color: var(--ink);
+      font-size: 15.5px;
+      line-height: 1.5;
+    }
+
+    /* Thanh đầu trang gọn gàng */
+    header.topbar {
+      background: var(--surface);
+      border-bottom: 1px solid var(--line);
+      padding: 14px 24px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .brand-title {
+      font-size: 20px;
+      font-weight: 700;
+      margin: 0;
+      color: var(--ink);
+      letter-spacing: -0.01em;
+    }
+
+    .topbar-controls {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tab-btn {
+      border: 1.5px solid var(--line);
+      background: var(--surface);
+      color: var(--ink);
+      border-radius: 999px;
+      padding: 8px 16px;
+      font: inherit;
+      font-size: 14.5px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.15s, border-color 0.15s, color 0.15s;
+    }
+
+    .tab-btn:hover {
+      border-color: var(--teal);
+    }
+
+    .tab-btn.active {
+      background: var(--teal);
+      border-color: var(--teal);
+      color: #fff;
+    }
+
+    .reset-btn {
+      border: 1.5px solid var(--line);
+      background: var(--surface-soft);
+      color: var(--ink);
+      border-radius: 10px;
+      padding: 8px 14px;
+      font: inherit;
+      font-size: 14.5px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .reset-btn:hover {
+      background: #ebf0ee;
+    }
+
+    .toggle-ann {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 14.5px;
+      font-weight: 500;
+      color: var(--muted);
+      cursor: pointer;
+      margin-left: 6px;
+      user-select: none;
+    }
+
+    .toggle-ann input {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--teal);
+      cursor: pointer;
+    }
+
+    /* Bố cục 2 cột trên desktop, xếp dọc trên điện thoại */
+    main.workspace {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 20px 24px 32px;
+      display: grid;
+      grid-template-columns: minmax(380px, 470px) 1fr;
+      gap: 24px;
+      align-items: start;
+    }
+
+    /* Khung chat bên trái */
+    .chat-frame {
+      min-width: 0;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 20px;
+      overflow: clip;
+      display: flex;
+      flex-direction: column;
+      box-shadow: 0 2px 12px rgba(22, 32, 30, 0.05);
+    }
+
+    .chat-intro {
+      padding: 14px 18px;
+      border-bottom: 1px solid var(--line);
+      background: var(--surface-soft);
+    }
+
+    .ai-identity {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-bottom: 5px;
+    }
+
+    .ai-avatar {
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: var(--teal);
+      color: #fff;
+      font-size: 12.5px;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex: none;
+    }
+
+    .ai-name {
+      font-weight: 700;
+      font-size: 15.5px;
+    }
+
+    .chat-promise {
+      margin: 0;
+      font-size: 13.5px;
+      color: var(--muted);
+      line-height: 1.45;
+    }
+
+    /* Vùng ghim thẻ khẩn ở đầu khung chat */
+    .pinned-slot {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      background: var(--red-bg);
+      border-bottom: 1.5px solid var(--red-line);
+      padding: 14px 18px;
+    }
+
+    .pinned-slot.collapsed {
+      padding: 11px 18px;
+    }
+
+    .pin-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      margin-bottom: 8px;
+      flex-wrap: wrap;
+    }
+
+    .pinned-slot.collapsed .pin-head {
+      margin-bottom: 4px;
+    }
+
+    .pin-title {
+      color: var(--red);
+      font-weight: 700;
+      font-size: 14px;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .pin-main-copy p {
+      margin: 0 0 8px;
+      font-size: 15px;
+    }
+
+    .pin-main-copy p:last-child {
+      margin-bottom: 0;
+    }
+
+    .pin-limit {
+      font-size: 14px;
+      color: #5f1d1d;
+    }
+
+    .pin-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .pin-evidence {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--red-line);
+      font-size: 13.5px;
+      color: #5f1d1d;
+    }
+
+    .quote-chip {
+      display: inline-block;
+      background: #fee2e2;
+      color: #7f1d1d;
+      font-weight: 600;
+      padding: 1px 6px;
+      border-radius: 6px;
+      margin: 2px 2px 2px 0;
+    }
+
+    .pin-meta-row {
+      margin-top: 8px;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #7f1d1d;
+    }
+
+    .sim-call-note {
+      margin-top: 8px;
+      padding: 7px 10px;
+      border-radius: 8px;
+      background: #fff;
+      border: 1px solid var(--red-line);
+      font-size: 13.5px;
+      color: var(--red);
+      font-weight: 600;
+    }
+
+    /* Luồng tin nhắn chat */
+    .chat-stream {
+      padding: 16px 18px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      min-height: 360px;
+      background: var(--surface);
+    }
+
+    .msg {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .msg.user {
+      align-items: flex-end;
+    }
+
+    .msg.ai {
+      align-items: flex-start;
+    }
+
+    .msg-who {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--muted);
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .bubble-user {
+      background: var(--user-bg);
+      color: #fff;
+      padding: 11px 14px;
+      border-radius: 16px 16px 4px 16px;
+      max-width: 88%;
+      font-size: 15px;
+    }
+
+    /* Một lớp khung phẳng duy nhất cho tin AI — không lồng nhau */
+    .bubble-ai {
+      background: var(--surface-soft);
+      border: 1px solid var(--line);
+      padding: 13px 15px;
+      border-radius: 16px 16px 16px 4px;
+      max-width: 96%;
+      width: 100%;
+    }
+
+    .bubble-ai.is-ask {
+      background: var(--amber-bg);
+      border-color: var(--amber-line);
+      border-left: 4px solid var(--amber-line);
+    }
+
+    .bubble-ai.is-revoked {
+      background: #f3f4f6;
+      border-color: #d1d5db;
+      color: #6b7280;
+    }
+
+    .bubble-ai.is-revoked .card-body-strike {
+      text-decoration: line-through;
+    }
+
+    .bubble-ai p {
+      margin: 0 0 8px;
+    }
+
+    .bubble-ai p:last-child {
+      margin-bottom: 0;
+    }
+
+    .card-divider {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid var(--line);
+    }
+
+    .summary-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--teal-dark);
+      margin-bottom: 3px;
+    }
+
+    .summary-text {
+      font-size: 14px;
+      color: var(--ink);
+    }
+
+    .pending-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--amber-bg);
+      border: 1px solid var(--amber-line);
+      color: var(--amber);
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .approved-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--teal-soft);
+      border: 1px solid var(--teal-line);
+      color: var(--teal-dark);
+      font-size: 13px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .revoked-pill {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 999px;
+      background: #fee2e2;
+      color: var(--red);
+      font-size: 12.5px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+
+    /* Dòng trạng thái hệ thống tách khỏi lời AI (§3.4) */
+    .sys-status {
+      font-size: 13px;
+      padding: 7px 11px;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      background: #f1f5f4;
+      color: var(--muted);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 6px;
+      width: 100%;
+    }
+
+    .sys-status.ok {
+      background: var(--teal-soft);
+      border-color: var(--teal-line);
+      color: var(--teal-dark);
+      font-weight: 600;
+    }
+
+    .sys-status.fail {
+      background: var(--red-bg);
+      border-color: var(--red-line);
+      color: var(--red);
+      font-weight: 600;
+    }
+
+    .sys-status.warn {
+      background: var(--amber-bg);
+      border-color: var(--amber-line);
+      color: var(--amber);
+      font-weight: 600;
+    }
+
+    /* Nút trong chat */
+    .btn-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .btn {
+      border: 1.5px solid var(--teal);
+      background: var(--surface);
+      color: var(--teal-dark);
+      border-radius: 10px;
+      padding: 8px 13px;
+      font: inherit;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.14s, color 0.14s, border-color 0.14s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn:hover:not(:disabled) {
+      background: var(--teal);
+      color: #fff;
+    }
+
+    .btn.primary {
+      background: var(--teal);
+      color: #fff;
+      border-color: var(--teal);
+    }
+
+    .btn.primary:hover:not(:disabled) {
+      background: var(--teal-dark);
+      border-color: var(--teal-dark);
+    }
+
+    .btn.urgent {
+      background: var(--red-solid);
+      border-color: var(--red-solid);
+      color: #fff;
+      font-weight: 700;
+      padding: 9px 16px;
+    }
+
+    .btn.urgent:hover:not(:disabled) {
+      background: var(--red);
+      border-color: var(--red);
+    }
+
+    .btn.subtle {
+      border-color: var(--line);
+      background: var(--surface);
+      color: var(--ink);
+      font-size: 13.5px;
+      padding: 7px 11px;
+    }
+
+    .btn.subtle:hover:not(:disabled) {
+      background: #edf1ef;
+      color: var(--ink);
+      border-color: #b7c2be;
+    }
+
+    .btn.danger-outline {
+      border-color: var(--red-line);
+      background: #fff;
+      color: var(--red);
+    }
+
+    .btn.danger-outline:hover:not(:disabled) {
+      background: var(--red-solid);
+      border-color: var(--red-solid);
+      color: #fff;
+    }
+
+    .btn.selected {
+      background: var(--teal);
+      border-color: var(--teal);
+      color: #fff;
+    }
+
+    .btn.danger-outline.selected {
+      background: var(--red-solid);
+      border-color: var(--red-solid);
+      color: #fff;
+    }
+
+    .btn:disabled {
+      opacity: 0.55;
+      cursor: default;
+    }
+
+    .age-form {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+      align-items: center;
+    }
+
+    .age-input {
+      border: 1.5px solid var(--amber-line);
+      border-radius: 10px;
+      padding: 7px 11px;
+      font: inherit;
+      font-size: 14.5px;
+      width: 140px;
+      background: #fff;
+      color: var(--ink);
+    }
+
+    .screening-list {
+      margin: 6px 0 0;
+      padding-left: 18px;
+      font-size: 14px;
+    }
+
+    .screening-list li {
+      margin-bottom: 3px;
+    }
+
+    /* Nhãn chú thích đánh số HAX / PAIR */
+    .ann {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--ann-bg);
+      color: #fff;
+      font-size: 11.5px;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 999px;
+      vertical-align: middle;
+      white-space: nowrap;
+      line-height: 1.3;
+    }
+
+    .ann-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: var(--ann-bg);
+      color: #fff;
+      font-size: 11px;
+      font-weight: 700;
+      flex: none;
+    }
+
+    .hide-ann .ann {
+      display: none !important;
+    }
+
+    /* Bảng "Quyết định của AI" bên phải */
+    aside.decision-col {
+      min-width: 0;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    .panel {
+      min-width: 0;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 16px 18px;
+      box-shadow: 0 1px 6px rgba(22, 32, 30, 0.03);
+    }
+
+    .panel h2 {
+      margin: 0 0 10px;
+      font-size: 16px;
+      font-weight: 700;
+      color: var(--ink);
+    }
+
+    .promise-box {
+      border-left: 4px solid var(--teal);
+      background: var(--teal-soft);
+      padding: 10px 12px;
+      border-radius: 0 10px 10px 0;
+      font-size: 14.5px;
+      color: var(--ink);
+      margin-bottom: 12px;
+    }
+
+    table.tool-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13.5px;
+    }
+
+    .tool-table th,
+    .tool-table td {
+      border-bottom: 1px solid var(--line);
+      padding: 8px 8px;
+      text-align: left;
+      vertical-align: top;
+    }
+
+    .tool-table th {
+      color: var(--muted);
+      font-weight: 600;
+      font-size: 12.5px;
+      text-transform: uppercase;
+      letter-spacing: 0.02em;
+    }
+
+    .tool-table tr.is-active td {
+      background: #fef9c3;
+    }
+
+    .tool-table tr:last-child td {
+      border-bottom: 0;
+    }
+
+    code.tool-code {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12.5px;
+      background: #eef2f1;
+      padding: 1px 5px;
+      border-radius: 5px;
+      color: var(--ink);
+      white-space: nowrap;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .pill-auto {
+      background: var(--teal-soft);
+      color: var(--teal-dark);
+    }
+
+    .pill-review {
+      background: var(--amber-bg);
+      color: var(--amber);
+      border: 1px solid #fcd34d;
+    }
+
+    .pill-ban {
+      background: var(--red-bg);
+      color: var(--red);
+      border: 1px solid var(--red-line);
+    }
+
+    .demo-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      align-items: center;
+      margin-bottom: 10px;
+    }
+
+    .demo-group-label {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--muted);
+      margin-right: 4px;
+    }
+
+    .pharma-queue-card {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 12px 14px;
+      background: var(--surface-soft);
+      font-size: 14px;
+    }
+
+    .pharma-queue-card.urgent {
+      border-color: var(--red-line);
+      background: var(--red-bg);
+    }
+
+    .pharma-queue-card.review {
+      border-color: var(--amber-line);
+      background: var(--amber-bg);
+    }
+
+    .pharma-draft {
+      margin-top: 8px;
+      padding: 9px 11px;
+      border-radius: 8px;
+      background: #fff;
+      border: 1px dashed var(--amber-line);
+      font-size: 13.5px;
+    }
+
+    .ann-list {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-size: 13.5px;
+    }
+
+    .ann-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: 8px;
+    }
+
+    .foot-note {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 0 24px 22px;
+      font-size: 12.5px;
+      color: var(--muted);
+    }
+
+    @media (max-width: 900px) {
+      header.topbar {
+        padding: 12px 16px;
+      }
+
+      main.workspace {
+        grid-template-columns: 1fr;
+        padding: 14px 16px 24px;
+        gap: 18px;
+      }
+
+      .chat-stream {
+        max-height: none;
+      }
+
+      code.tool-code {
+        white-space: normal;
+        word-break: break-word;
+      }
+
+      .tool-table th,
+      .tool-table td {
+        padding: 7px 5px;
+        font-size: 13px;
+      }
+
+      .foot-note {
+        padding: 0 16px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <h1 class="brand-title">Hỏi dược sĩ</h1>
+    <div class="topbar-controls">
+      <button type="button" class="tab-btn active" data-case="r7">R7 · Oresol &amp; lơ mơ</button>
+      <button type="button" class="tab-btn" data-case="r3">R3 · Sốt 39°C</button>
+      <button type="button" class="reset-btn" id="btn-reset">Chạy lại</button>
+      <label class="toggle-ann">
+        <input type="checkbox" id="toggle-ann" checked>
+        Hiện chú thích
+      </label>
+    </div>
+  </header>
+
+  <main class="workspace">
+    <!-- CỘT TRÁI: KHUNG CHAT KHÁCH HÀNG -->
+    <section class="chat-frame" aria-label="Khung chat Hỏi dược sĩ">
+      <div class="chat-intro">
+        <div class="ai-identity">
+          <span class="ai-avatar">AI</span>
+          <span class="ai-name">Trợ lý AI</span>
+          <span class="ann">① G1/G2 · Nhãn AI</span>
+        </div>
+        <p class="chat-promise">
+          Trợ lý AI trả lời ngay về sản phẩm thông thường và <strong>báo ngay nếu có dấu hiệu cần đi khám</strong>. Với thuốc, AI hỏi về <strong>người sẽ dùng thuốc</strong>, rồi <strong>dược sĩ xác nhận</strong> trước khi gợi ý tới tay bạn.
+        </p>
+      </div>
+
+      <div id="pinned-container"></div>
+      <div class="chat-stream" id="chat-stream"></div>
+    </section>
+
+    <!-- CỘT PHẢI: QUYẾT ĐỊNH CỦA AI -->
+    <aside class="decision-col" aria-label="Quyết định của AI">
+      <div class="panel">
+        <h2>Quyết định của AI · Mức tự chủ theo §4</h2>
+        <div class="promise-box" id="active-decision-summary"></div>
+        <div style="overflow-x:auto;">
+          <table class="tool-table">
+            <thead>
+              <tr>
+                <th>Hành động / Tool</th>
+                <th>Mức</th>
+                <th>Vì sao (cái giá khi sai)</th>
+              </tr>
+            </thead>
+            <tbody id="tool-table-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel">
+        <h2>Bảng điều khiển mô phỏng &amp; phía dược sĩ</h2>
+        <div class="demo-bar">
+          <span class="demo-group-label">Kết nối chuyển dược sĩ:</span>
+          <button type="button" class="btn subtle" id="btn-sim-ok">Chuyển thành công</button>
+          <button type="button" class="btn subtle" id="btn-sim-fail">Chuyển thất bại</button>
+        </div>
+        <div id="time-demo-bar" class="demo-bar" style="display:none;"></div>
+        <div id="pharmacist-panel"></div>
+      </div>
+
+      <div class="panel" id="ann-panel">
+        <h2>Chú thích nguyên tắc HAX / PAIR (§3.3)</h2>
+        <ul class="ann-list" id="ann-list"></ul>
+      </div>
+    </aside>
+  </main>
+
+  <div class="foot-note">
+    Prototype thiết kế LAB5 · Nhóm E3 · Track 1 (Hỏi dược sĩ). Toàn bộ dữ liệu, cuộc gọi 115, chuyển dược sĩ và duyệt đơn đều là mô phỏng cục bộ.
+  </div>
+
+  <script>
+    const $ = (s) => document.querySelector(s);
+
+    function createInitialState() {
+      return {
+        activeCase: 'r7',
+        showAnn: true,
+        transferOk: true,
+        r7: {
+          called115: false,
+          corrected: false,
+          expanded: true,
+          timeMin: 0,
+          reminded2m: false,
+          escalated3m: false
+        },
+        r3: {
+          step: 'ask_who',
+          whoLabel: '',
+          ageInput: '18 tháng',
+          redFlag: null,
+          called115: false,
+          screeningLoaded: false,
+          pharmacistAction: null,
+          changingWho: false,
+          cameFromCorrection: false,
+          drankStatus: null
+        }
+      };
+    }
+
+    let state = createInitialState();
+
+    const RED_FLAGS_R3 = [
+      'Co giật',
+      'Li bì, khó đánh thức',
+      'Khó thở',
+      'Bỏ bú, không uống được'
+    ];
+
+    function annTag(num, label) {
+      return `<span class="ann">${num} ${label}</span>`;
+    }
+
+    function escapeHtml(str) {
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    /* ---------- RENDER KHUNG GHIM ĐẦU CHAT ---------- */
+    function renderPinned() {
+      const slot = $('#pinned-container');
+      const isR7 = state.activeCase === 'r7';
+      const isR3Emergency = state.activeCase === 'r3' && (
+        state.r3.step === 'under2_redflag' || state.r3.step === 'correction_drank_yes'
+      );
+
+      if (!isR7 && !isR3Emergency) {
+        slot.innerHTML = '';
+        return;
+      }
+
+      if (isR7) {
+        const r7 = state.r7;
+        const collapsed = r7.corrected && !r7.expanded;
+        if (collapsed) {
+          slot.innerHTML = `
+            <div class="pinned-slot collapsed">
+              <div class="pin-head">
+                <span class="pin-title">Cảnh báo khẩn vẫn được giữ</span>
+                <button type="button" class="btn subtle" id="btn-expand-pin">Xem đầy đủ</button>
+              </div>
+              <div class="pin-meta-row" style="margin-top:4px;">
+                <span>Oresol: chưa đặt (đang khoá chờ dược sĩ mở)</span>
+                <button type="button" class="btn urgent" id="btn-call-115">Gọi 115 (mô phỏng)</button>
+              </div>
+              ${r7.called115 ? `<div class="sim-call-note">Đang mô phỏng thao tác gọi 115 — không thực hiện cuộc gọi thật.</div>` : ''}
+            </div>
+          `;
+          return;
+        }
+
+        slot.innerHTML = `
+          <div class="pinned-slot">
+            <div class="pin-head">
+              <span class="pin-title">Cảnh báo khẩn · Ưu tiên cấp cứu</span>
+              ${r7.corrected ? `<button type="button" class="btn subtle" id="btn-collapse-pin">Thu gọn</button>` : ''}
+            </div>
+
+            <div class="pin-main-copy">
+              <p><strong>Ông đang lơ mơ, gọi không tỉnh hẳn sau khi nôn cả ngày. Đây là dấu hiệu cần cấp cứu, không chờ thuốc giao tới được.</strong></p>
+              <p><strong>Bạn gọi 115 hoặc đưa ông tới bệnh viện gần nhất ngay bây giờ.</strong></p>
+              <p class="pin-limit">
+                Mình là trợ lý AI, không khám được cho ông, nên có thể mình đang lo quá mức ${annTag('①', 'G1/G2 · Giới hạn AI')}. Nhưng với dấu hiệu này, đi viện thừa vẫn an toàn hơn ngồi chờ.
+              </p>
+              <p class="pin-limit">Mình <strong>chưa đặt</strong> Oresol. Bạn không cần chờ dược sĩ trả lời rồi mới đi.</p>
+            </div>
+
+            <div class="pin-actions">
+              <button type="button" class="btn urgent" id="btn-call-115">Gọi 115 (mô phỏng)</button>
+              <button type="button" class="btn subtle" id="btn-r7-correct" ${r7.corrected ? 'disabled' : ''}>
+                Ông vẫn tỉnh táo, mình tả chưa đúng ${annTag('④', 'G9')} ${annTag('⑤', 'PAIR')}
+              </button>
+            </div>
+
+            ${r7.called115 ? `<div class="sim-call-note">Đang mô phỏng thao tác gọi 115 — không thực hiện cuộc gọi thật.</div>` : ''}
+
+            <div class="pin-evidence">
+              <div><strong>Vì sao mình nói vậy</strong> ${annTag('③', 'G11 · Căn cứ')}</div>
+              <div style="margin-top:4px;">
+                <span class="quote-chip">“80 tuổi”</span>
+                <span class="quote-chip">“nôn ói từ sáng”</span>
+                <span class="quote-chip">“gọi ông không tỉnh lắm, cứ lơ mơ”</span>
+              </div>
+              <div class="pin-meta-row">
+                <span>Oresol: chưa đặt</span>
+                <span>Không có nút đặt trong trạng thái này</span>
+              </div>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      // Trường hợp khẩn ở R3 (bé có dấu hiệu nguy hiểm hoặc đã uống nhầm)
+      const reasonQuote = state.r3.redFlag
+        ? `<span class="quote-chip">“${escapeHtml(state.r3.redFlag)}”</span>`
+        : `<span class="quote-chip">“Đã uống gợi ý sai cho bé”</span>`;
+
+      slot.innerHTML = `
+        <div class="pinned-slot">
+          <div class="pin-head">
+            <span class="pin-title">Cảnh báo khẩn · Đưa bé đi khám ngay</span>
+          </div>
+          <div class="pin-main-copy">
+            <p><strong>Bé 18 tháng đang có dấu hiệu cần đi khám cấp cứu, không chờ dược sĩ tư vấn qua chat.</strong></p>
+            <p><strong>Bạn gọi 115 hoặc đưa bé tới cơ sở y tế gần nhất ngay bây giờ.</strong></p>
+            <p class="pin-limit">Mình là trợ lý AI, không thay thế bác sĩ khám trực tiếp ${annTag('①', 'G1/G2 · Giới hạn AI')}.</p>
+          </div>
+          <div class="pin-actions">
+            <button type="button" class="btn urgent" id="btn-call-115">Gọi 115 (mô phỏng)</button>
+          </div>
+          ${state.r3.called115 ? `<div class="sim-call-note">Đang mô phỏng thao tác gọi 115 — không thực hiện cuộc gọi thật.</div>` : ''}
+          <div class="pin-evidence">
+            <div><strong>Vì sao mình nói vậy</strong> ${annTag('③', 'G11 · Căn cứ')}</div>
+            <div style="margin-top:4px;">
+              <span class="quote-chip">“Bé 18 tháng”</span>
+              <span class="quote-chip">“sốt 39°C”</span>
+              ${reasonQuote}
+            </div>
+            <div class="pin-meta-row">
+              <span>Thuốc hạ sốt: không gợi ý · không bán qua chat</span>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    /* ---------- RENDER LUỒNG CHAT ---------- */
+    function renderR7Stream() {
+      const r7 = state.r7;
+      let statusLine = '';
+      if (state.transferOk) {
+        let extra = r7.corrected ? ' · Đã nâng ưu tiên cao nhất' : '';
+        if (r7.escalated3m) {
+          extra += ' · Quá 3 phút chưa mở: đã báo lại dược sĩ và báo trưởng ca';
+        }
+        statusLine = `<div class="sys-status ok">Đã báo dược sĩ trực lúc 21:04${extra}</div>`;
+      } else {
+        statusLine = `<div class="sys-status fail">Chưa chuyển được cho dược sĩ · Thẻ cảnh báo khẩn phía trên vẫn giữ nguyên ${annTag('⑤', 'PAIR · Lỗi hệ thống')}</div>`;
+      }
+
+      let html = `
+        <div class="msg user">
+          <div class="msg-who">Khách hàng</div>
+          <div class="bubble-user">
+            Cho mình đặt 2 hộp Oresol giao gấp với. Ông nội 80 tuổi nôn ói từ sáng tới giờ, giờ gọi ông không tỉnh lắm, cứ lơ mơ.
+          </div>
+        </div>
+        ${statusLine}
+      `;
+
+      if (r7.corrected) {
+        html += `
+          <div class="msg user">
+            <div class="msg-who">Khách hàng</div>
+            <div class="bubble-user">Ông vẫn tỉnh táo, mình tả chưa đúng</div>
+          </div>
+          <div class="msg ai">
+            <div class="msg-who">Trợ lý AI ${annTag('①', 'G1/G2')}</div>
+            <div class="bubble-ai">
+              <p>Mình đã ghi nhận điều chỉnh của bạn và đẩy ca lên <strong>mức ưu tiên cao nhất</strong> cho dược sĩ trực xử lý.</p>
+              <p>Để đảm bảo an toàn, mình vẫn giữ cảnh báo thu gọn ở đầu khung chat và <strong>tiếp tục khoá đặt Oresol</strong> — chỉ dược sĩ sau khi trao đổi mới mở lại được. ${annTag('⑤', 'PAIR · Graceful Failure')}</p>
+            </div>
+          </div>
+        `;
+      }
+
+      if (r7.reminded2m) {
+        html += `
+          <div class="msg ai">
+            <div class="msg-who">Trợ lý AI · Nhắc sau 2 phút</div>
+            <div class="bubble-ai">
+              <p>Bạn đã gọi 115 hoặc đưa ông đi chưa?</p>
+            </div>
+          </div>
+        `;
+      }
+
+      return html;
+    }
+
+    function renderR3Stream() {
+      const r3 = state.r3;
+      const transferStatusHtml = state.transferOk
+        ? `<div class="sys-status ok">Đã chuyển dược sĩ lúc 23:42 · chưa có giờ trả lời chắc chắn</div>`
+        : `<div class="sys-status fail">Chưa chuyển được cho dược sĩ · Dược sĩ chưa nhận được ca ${annTag('⑤', 'PAIR · Lỗi hệ thống')}</div>`;
+
+      let html = `
+        <div class="msg user">
+          <div class="msg-who">Khách hàng</div>
+          <div class="bubble-user">
+            Shop ơi có thuốc gì hạ sốt nhanh ko, sốt 39 độ từ chiều tới giờ, lấy loại nào uống được liền nha.
+          </div>
+        </div>
+
+        <div class="msg ai">
+          <div class="msg-who">Trợ lý AI ${annTag('①', 'G1/G2')}</div>
+          <div class="bubble-ai ${r3.step === 'ask_who' ? 'is-ask' : ''}">
+            <p>Mình giúp ngay. Thuốc hạ sốt cho trẻ nhỏ, người lớn và mẹ bầu khác nhau ${annTag('③', 'G11 · Lý do hỏi')}, nên mình cần biết một điều trước khi gợi ý:</p>
+            <p><strong>Thuốc này cho ai dùng ạ?</strong> ${annTag('②', 'G10 · Thu hẹp phạm vi')}</p>
+            <div class="btn-group">
+              <button type="button" class="btn ${r3.whoLabel === 'Mình (người lớn)' ? 'selected' : ''}" data-who="adult" ${r3.step !== 'ask_who' ? 'disabled' : ''}>Mình (người lớn)</button>
+              <button type="button" class="btn ${r3.whoLabel === 'Trẻ dưới 2 tuổi' ? 'selected' : ''}" data-who="under2" ${r3.step !== 'ask_who' ? 'disabled' : ''}>Trẻ dưới 2 tuổi</button>
+              <button type="button" class="btn ${r3.whoLabel === 'Trẻ 2–12 tuổi' ? 'selected' : ''}" data-who="child2_12" ${r3.step !== 'ask_who' ? 'disabled' : ''}>Trẻ 2–12 tuổi</button>
+              <button type="button" class="btn ${r3.whoLabel === 'Người trên 65 tuổi' ? 'selected' : ''}" data-who="elder65" ${r3.step !== 'ask_who' ? 'disabled' : ''}>Người trên 65 tuổi</button>
+              <button type="button" class="btn ${r3.whoLabel === 'Đang mang thai / cho con bú' ? 'selected' : ''}" data-who="pregnant" ${r3.step !== 'ask_who' ? 'disabled' : ''}>Đang mang thai / cho con bú</button>
+            </div>
+          </div>
+        </div>
+      `;
+
+      /* Nhánh 1: Trẻ dưới 2 tuổi -> Hỏi tuổi trước -> Gửi 18 tháng */
+      if (r3.whoLabel === 'Trẻ dưới 2 tuổi') {
+        html += `
+          <div class="msg user">
+            <div class="msg-who">Khách hàng</div>
+            <div class="bubble-user">Trẻ dưới 2 tuổi</div>
+          </div>
+          <div class="msg ai">
+            <div class="msg-who">Trợ lý AI ${annTag('①', 'G1/G2')}</div>
+            <div class="bubble-ai ${r3.step === 'ask_age_under2' ? 'is-ask' : ''}">
+              <p>Bé bao nhiêu tháng tuổi rồi ạ? Mình cần ghi chính xác để chuyển ngay cho dược sĩ trực.</p>
+              ${r3.step === 'ask_age_under2' ? `
+                <div class="age-form">
+                  <input type="text" class="age-input" id="input-age" value="${escapeHtml(r3.ageInput)}" aria-label="Tuổi của bé">
+                  <button type="button" class="btn primary" id="btn-send-age">Gửi tuổi</button>
+                </div>
+              ` : ''}
+            </div>
+          </div>
+        `;
+      }
+
+      /* Lượt 2 sau khi biết bé 18 tháng (luồng trực tiếp từ Trẻ dưới 2 tuổi) */
+      if (['under2_triage', 'under2_redflag', 'under2_waiting'].includes(r3.step) && !r3.cameFromCorrection) {
+        html += `
+          <div class="msg user">
+            <div class="msg-who">Khách hàng</div>
+            <div class="bubble-user">Bé ${escapeHtml(r3.ageInput)}</div>
+          </div>
+        `;
+        html += renderUnder2Turn2(transferStatusHtml);
+      }
+
+      /* Nhánh C cho các nhóm nguy cơ khác (Trẻ 2-12, >65, Mang thai) */
+      if (r3.step === 'risk_group_transfer') {
+        html += `
+          <div class="msg user">
+            <div class="msg-who">Khách hàng</div>
+            <div class="bubble-user">${escapeHtml(r3.whoLabel)}</div>
+          </div>
+          <div class="msg ai">
+            <div class="msg-who">Trợ lý AI ${annTag('①', 'G1/G2')}</div>
+            <div class="bubble-ai">
+              <p>Với nhóm <strong>${escapeHtml(r3.whoLabel)}</strong>, trợ lý AI không tự gợi ý thuốc hạ sốt hay liều dùng. Mình đã lập tóm tắt để chuyển dược sĩ trực xem xét, bạn không cần kể lại.</p>
+              <div class="card-divider">
+                <div class="summary-title">Bản bàn giao cho dược sĩ</div>
+                <div class="summary-text">${escapeHtml(r3.whoLabel)} · sốt 39°C từ chiều · chưa rõ thuốc đang dùng, bệnh nền</div>
+              </div>
+            </div>
+          </div>
+          ${transferStatusHtml}
+        `;
+      }
+
+      /* Nhánh 2: Mình (người lớn) -> Sàng lọc 5 trường -> Dược sĩ duyệt -> Thẻ gợi ý + nút Đổi */
+      const inAdultOrCorrection = [
+        'adult_screening', 'adult_pending_approval', 'adult_approved',
+        'correction_drank', 'correction_drank_yes', 'correction_drank_no'
+      ].includes(r3.step) || r3.cameFromCorrection;
+
+      if (inAdultOrCorrection) {
+        html += `
+          <div class="msg user">
+            <div class="msg-who">Khách hàng</div>
+            <div class="bubble-user">Mình (người lớn)</div>
+          </div>
+          <div class="msg ai">
+            <div class="msg-who">Trợ lý AI ${annTag('①', 'G1/G2')}</div>
+            <div class="bubble-ai ${r3.step === 'adult_screening' ? 'is-ask' : ''}">
+              <p>Để dược sĩ duyệt gợi ý thuốc phù hợp cho bạn, mình cần đủ <strong>5 thông tin sàng lọc</strong>: tuổi, mang thai/cho con bú, thuốc đang dùng, bệnh mạn/dị ứng, và triệu chứng kéo dài bao lâu / đã uống gì.</p>
+              ${r3.step === 'adult_screening' ? `
+                <div class="btn-group">
+                  <button type="button" class="btn primary" id="btn-load-screening">Nạp 5 câu trả lời sàng lọc mẫu</button>
+                </div>
+              ` : ''}
+            </div>
+          </div>
+        `;
+
+        if (r3.screeningLoaded) {
+          html += `
+            <div class="msg user">
+              <div class="msg-who">Khách hàng</div>
+              <div class="bubble-user">
+                Mình 28 tuổi · Không mang thai/cho bú · Không đang dùng thuốc nào · Không bệnh mạn hay dị ứng · Sốt 39°C từ chiều, chưa uống thuốc gì.
+              </div>
+            </div>
+          `;
+        }
+
+        if (r3.step === 'adult_pending_approval') {
+          html += `
+            <div class="msg ai">
+              <div class="msg-who">Trợ lý AI ${annTag('①', 'G1/G2')}</div>
+              <div class="bubble-ai">
+                <span class="pending-pill">Chờ dược sĩ xác nhận</span>
+                <p>Mình đã tổng hợp đủ 5 thông tin và chuyển dược sĩ xác nhận trước khi gửi gợi ý tới bạn.</p>
+              </div>
+            </div>
+            ${transferStatusHtml}
+          `;
+        }
+
+        if (['adult_approved', 'correction_drank', 'correction_drank_yes', 'correction_drank_no'].includes(r3.step) || r3.cameFromCorrection) {
+          if (r3.pharmacistAction === 'takeover') {
+            html += `
+              <div class="sys-status ok">Dược sĩ trực đã nhận ca và đang nhắn trực tiếp cho bạn</div>
+            `;
+          } else {
+            const isRevoked = ['correction_drank', 'correction_drank_yes', 'correction_drank_no'].includes(r3.step) || r3.cameFromCorrection;
+            html += `
+              <div class="msg ai">
+                <div class="msg-who">Trợ lý AI ${annTag('①', 'G1/G2')}</div>
+                <div class="bubble-ai ${isRevoked ? 'is-revoked' : ''}">
+                  ${isRevoked
+                    ? `<span class="revoked-pill">Đã thu hồi — không dùng cho bé 18 tháng</span>`
+                    : `<span class="approved-pill">Dược sĩ đã xác nhận</span>`}
+                  <div class="${isRevoked ? 'card-body-strike' : ''}">
+                    <p><strong>Gợi ý minh họa: Thuốc hạ sốt không kê đơn cho người lớn</strong></p>
+                    <p style="font-size:14px; color:var(--muted);">Thẻ minh họa — không ghi tên thuốc cụ thể hay liều dùng; dùng theo hướng dẫn trên nhãn sản phẩm hoặc lời dặn dược sĩ.</p>
+                  </div>
+                  <div class="card-divider" style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px;">
+                    <span style="font-size:13.5px;"><strong>Gợi ý này cho:</strong> Người lớn (28 tuổi)</span>
+                    ${!isRevoked ? `
+                      <button type="button" class="btn subtle" id="btn-change-who">
+                        Đổi ${annTag('④', 'G9 · Sửa dễ')}
+                      </button>
+                    ` : ''}
+                  </div>
+                  ${r3.changingWho && !isRevoked ? `
+                    <div class="card-divider">
+                      <div style="font-size:13.5px; font-weight:600; margin-bottom:6px;">Bạn muốn đổi người dùng thuốc sang ai?</div>
+                      <div class="btn-group" style="margin-top:0;">
+                        <button type="button" class="btn danger-outline" id="btn-switch-baby18m">Đổi sang bé 18 tháng</button>
+                        <button type="button" class="btn subtle" id="btn-cancel-change">Giữ nguyên người lớn</button>
+                      </div>
+                    </div>
+                  ` : ''}
+                </div>
+              </div>
+            `;
+          }
+        }
+
+        /* Đường sửa §3.2 khi đổi sang bé 18 tháng */
+        if (['correction_drank', 'correction_drank_yes', 'correction_drank_no'].includes(r3.step) || r3.cameFromCorrection) {
+          html += `
+            <div class="msg user">
+              <div class="msg-who">Khách hàng</div>
+              <div class="bubble-user">Đổi sang bé 18 tháng (mình chọn nhầm, thật ra mua cho bé 18 tháng)</div>
+            </div>
+            <div class="msg ai">
+              <div class="msg-who">Trợ lý AI ${annTag('⑤', 'PAIR · Đường sửa')}</div>
+              <div class="bubble-ai is-ask">
+                <p>Mình đã sai: mình gợi ý khi chưa biết đúng người dùng thuốc. Gợi ý vừa rồi <strong>không dùng cho bé</strong>, bạn đừng cho bé uống.</p>
+                <p><strong>Bé đã uống chưa?</strong></p>
+                <div class="btn-group">
+                  <button type="button" class="btn ${r3.drankStatus === 'no' ? 'selected' : ''}" id="btn-drank-no" ${r3.drankStatus ? 'disabled' : ''}>Chưa uống</button>
+                  <button type="button" class="btn danger-outline ${r3.drankStatus === 'yes' ? 'selected' : ''}" id="btn-drank-yes" ${r3.drankStatus ? 'disabled' : ''}>Đã uống rồi</button>
+                </div>
+              </div>
+            </div>
+          `;
+
+          if (r3.drankStatus === 'yes') {
+            html += `
+              <div class="msg user">
+                <div class="msg-who">Khách hàng</div>
+                <div class="bubble-user">Đã uống rồi</div>
+              </div>
+              <div class="msg ai">
+                <div class="msg-who">Trợ lý AI ${annTag('⑤', 'PAIR · Graceful Failure')}</div>
+                <div class="bubble-ai">
+                  <p>Mình đã gắn <strong>ưu tiên khẩn</strong> và gửi kèm thông tin thẻ gợi ý vừa rồi cho dược sĩ trực. Nếu bé có bất kỳ dấu hiệu nào ở thẻ đỏ phía trên, hãy gọi 115 hoặc đưa bé đi viện ngay.</p>
+                  <div class="card-divider">
+                    <div class="summary-title">Bản bàn giao khẩn</div>
+                    <div class="summary-text">Bé 18 tháng · đã uống sản phẩm từ gợi ý nhầm người dùng · sốt 39°C từ chiều</div>
+                  </div>
+                </div>
+              </div>
+              ${transferStatusHtml}
+            `;
+          }
+
+          if (r3.drankStatus === 'no') {
+            html += `
+              <div class="msg user">
+                <div class="msg-who">Khách hàng</div>
+                <div class="bubble-user">Chưa uống</div>
+              </div>
+              ${renderUnder2Turn2(transferStatusHtml)}
+            `;
+          }
+        }
+      }
+
+      return html;
+    }
+
+    function renderUnder2Turn2(transferStatusHtml) {
+      const r3 = state.r3;
+      const flagChosen = r3.redFlag;
+      const isDangerChosen = RED_FLAGS_R3.includes(flagChosen);
+
+      let html = `
+        <div class="msg ai">
+          <div class="msg-who">Trợ lý AI ${annTag('①', 'G1/G2')}</div>
+          <div class="bubble-ai">
+            <p>Bé 18 tháng sốt 39 độ: mình là trợ lý AI nên <strong>không tự gợi ý thuốc hay liều cho bé</strong>. Tóm tắt ca đã được lập để chuyển dược sĩ, bạn không phải kể lại.</p>
+            <p>Trong lúc chờ, bé có dấu hiệu nào dưới đây không? Có một dấu hiệu là cần đưa bé đi viện ngay, không chờ dược sĩ.</p>
+            <div class="card-divider">
+              <div class="summary-title">Bản bàn giao cho dược sĩ (ưu tiên)</div>
+              <div class="summary-text">Bé 18 tháng · sốt 39°C từ chiều · chưa rõ cân nặng, thuốc đã dùng</div>
+            </div>
+            <div class="btn-group">
+              ${RED_FLAGS_R3.map((flag) => `
+                <button type="button" class="btn danger-outline ${flagChosen === flag ? 'selected' : ''}" data-flag="${escapeHtml(flag)}" ${isDangerChosen ? 'disabled' : ''}>
+                  ${escapeHtml(flag)}
+                </button>
+              `).join('')}
+              <button type="button" class="btn ${flagChosen === 'Không có dấu hiệu nào' ? 'selected' : ''}" data-flag="Không có dấu hiệu nào" ${isDangerChosen || flagChosen === 'Không có dấu hiệu nào' ? 'disabled' : ''}>
+                Không có dấu hiệu nào
+              </button>
+            </div>
+          </div>
+        </div>
+        ${transferStatusHtml}
+      `;
+
+      if (isDangerChosen) {
+        html += `
+          <div class="msg user">
+            <div class="msg-who">Khách hàng</div>
+            <div class="bubble-user">${escapeHtml(flagChosen)}</div>
+          </div>
+          <div class="sys-status fail">Đã ghim cảnh báo khẩn và hướng dẫn gọi 115 ở đầu khung chat</div>
+        `;
+      } else if (flagChosen === 'Không có dấu hiệu nào') {
+        html += `
+          <div class="msg user">
+            <div class="msg-who">Khách hàng</div>
+            <div class="bubble-user">Không có dấu hiệu nào</div>
+          </div>
+          <div class="msg ai">
+            <div class="msg-who">Trợ lý AI</div>
+            <div class="bubble-ai">
+              <p>Mình đã ghi nhận bé chưa có dấu hiệu trên và vẫn giữ ca ở <strong>hàng ưu tiên cho dược sĩ</strong>. Danh sách 4 dấu hiệu nguy hiểm vẫn giữ ngay phía trên — nếu thấy xuất hiện bất kỳ dấu hiệu nào trong lúc chờ, bạn bấm vào ngay hoặc đưa bé đi viện nhé.</p>
+            </div>
+          </div>
+        `;
+      }
+
+      return html;
+    }
+
+    /* ---------- RENDER BẢNG PHẢI: QUYẾT ĐỊNH CỦA AI ---------- */
+    function renderRightPanel() {
+      const isR7 = state.activeCase === 'r7';
+      const r3 = state.r3;
+
+      // 1. Tóm tắt quyết định hiện tại
+      let summary = '';
+      if (isR7) {
+        summary = state.r7.corrected
+          ? '<strong>Đang ở R7 (sau điều chỉnh):</strong> Giữ cảnh báo thu gọn, <strong>cấm</strong> đặt Oresol, nâng ưu tiên cao nhất cho <code>chuyen_duoc_si</code>.'
+          : '<strong>Đang ở R7:</strong> Phát hiện cờ đỏ → <code>khuyen_di_kham</code> <strong>tự làm</strong> ở tin đầu, khoá đặt Oresol, và chạy <code>chuyen_duoc_si</code> song song.';
+      } else if (r3.step === 'ask_who' || r3.step === 'ask_age_under2') {
+        summary = '<strong>Đang ở R3 (lượt 1):</strong> Thiếu cổng “người dùng thuốc” → khoá <code>gui_goi_y</code>, AI chỉ hỏi lại 1 câu thu hẹp phạm vi.';
+      } else if (['under2_triage', 'under2_waiting', 'risk_group_transfer', 'correction_drank_no'].includes(r3.step)) {
+        summary = '<strong>Đang ở R3 (Nhánh C · Nhóm nguy cơ):</strong> <code>goi_y_san_pham</code> ở mức <strong>Cấm</strong>; <code>chuyen_duoc_si</code> <strong>tự làm</strong> ở hàng ưu tiên.';
+      } else if (r3.step === 'under2_redflag' || r3.step === 'correction_drank_yes') {
+        summary = '<strong>Đang ở R3 (Cờ đỏ / Đường sửa khẩn):</strong> Chuyển thẳng sang <code>khuyen_di_kham</code> (<strong>tự làm</strong>) và giữ <code>goi_y_san_pham</code> ở mức <strong>Cấm</strong>.';
+      } else if (r3.step === 'adult_screening') {
+        summary = '<strong>Đang ở R3 (Nhánh B · Người lớn):</strong> Đang thu thập đủ 5 trường sàng lọc trước khi <code>soan_goi_y</code> gửi dược sĩ duyệt.';
+      } else if (r3.step === 'adult_pending_approval') {
+        summary = '<strong>Đang ở R3 (Nhánh B · Chờ duyệt):</strong> <code>soan_goi_y</code> đã tạo nháp (<strong>tự làm</strong>); <code>gui_goi_y</code> đang chờ <strong>Dược sĩ duyệt</strong>.';
+      } else if (r3.step === 'adult_approved') {
+        summary = '<strong>Đang ở R3 (Nhánh B · Đã duyệt):</strong> Dược sĩ đã xác nhận <code>gui_goi_y</code>; thẻ vẫn gắn nút <strong>Đổi</strong> (G9) để sửa nếu chọn nhầm người.';
+      } else if (r3.step === 'correction_drank') {
+        summary = '<strong>Đang ở R3 (Đường sửa PAIR):</strong> Phát hiện đổi từ người lớn sang bé 18 tháng → thu hồi thẻ gợi ý, chuyển sang kiểm tra đã uống chưa.';
+      }
+      $('#active-decision-summary').innerHTML = summary;
+
+      // 2. Xác định các dòng nổi bật trong bảng tool
+      const activeRows = new Set();
+      if (isR7) {
+        activeRows.add('khuyen_di_kham');
+        activeRows.add('chuyen_duoc_si');
+        activeRows.add('gui_c');
+      } else {
+        if (['under2_redflag', 'correction_drank_yes'].includes(r3.step)) {
+          activeRows.add('khuyen_di_kham');
+          activeRows.add('chuyen_duoc_si');
+          activeRows.add('gui_c');
+        } else if (['under2_triage', 'under2_waiting', 'risk_group_transfer', 'correction_drank', 'correction_drank_no'].includes(r3.step)) {
+          activeRows.add('chuyen_duoc_si');
+          activeRows.add('gui_c');
+        } else if (r3.step === 'adult_pending_approval') {
+          activeRows.add('soan_goi_y');
+          activeRows.add('gui_b');
+        } else if (r3.step === 'adult_approved') {
+          activeRows.add('gui_b');
+        } else if (r3.step === 'adult_screening') {
+          activeRows.add('gui_b');
+        } else {
+          activeRows.add('gui_c');
+        }
+      }
+
+      const rows = [
+        {
+          id: 'khuyen_di_kham',
+          tool: '<code>khuyen_di_kham</code>',
+          level: '<span class="pill pill-auto">Tự làm</span>',
+          reason: 'Báo thừa: khách bỏ qua được. Báo thiếu: trễ cấp cứu, không đảo được (R7).'
+        },
+        {
+          id: 'chuyen_duoc_si',
+          tool: '<code>chuyen_duoc_si</code>',
+          level: '<span class="pill pill-auto">Tự làm</span>',
+          reason: 'Chuyển thừa: tốn vài phút, đảo được. Chờ duyệt: ca nguy nằm hàng chờ (R7, R3).'
+        },
+        {
+          id: 'soan_goi_y',
+          tool: '<code>soan_goi_y</code> <small>(tách từ gợi ý)</small>',
+          level: '<span class="pill pill-auto">Tự làm</span>',
+          reason: 'Chỉ soạn nháp nội bộ, khách chưa thấy nên chưa gây hại (R3 nhánh người lớn).'
+        },
+        {
+          id: 'gui_a',
+          tool: '<code>gui_goi_y</code> · Nhánh A (Vật tư)',
+          level: '<span class="pill pill-auto">Tự làm</span>',
+          reason: 'Danh sách duyệt trước (nước muối, khẩu trang); chờ người làm nghẽn hàng (R1, R4).'
+        },
+        {
+          id: 'gui_b',
+          tool: '<code>gui_goi_y</code> · Nhánh B (Thuốc KKD)',
+          level: '<span class="pill pill-review">Dược sĩ duyệt</span>',
+          reason: 'Người lớn đủ 5 trường sàng lọc; chặn ca bấm nhầm người dùng thuốc trước khi gửi.'
+        },
+        {
+          id: 'gui_c',
+          tool: '<code>gui_goi_y</code> · Nhánh C (Nhóm nguy cơ / cờ đỏ)',
+          level: '<span class="pill pill-ban">Cấm</span>',
+          reason: 'Trẻ nhỏ, ≥65 tuổi, mang thai, cờ đỏ: sai không đảo được khi thuốc đã uống (R2, R3, R7).'
+        },
+        {
+          id: 'luu_ghi_chu',
+          tool: '<code>luu_ghi_chu_suc_khoe</code>',
+          level: '<span class="pill pill-review">Khách duyệt</span>',
+          reason: 'Mặc định không lưu; xoá được nhưng lộ thông tin nhạy cảm không thu hồi được (R6).'
+        },
+        {
+          id: 'ban_ke_don',
+          tool: '<code>ban_thuoc_ke_don</code>',
+          level: '<span class="pill pill-ban">Cấm</span>',
+          reason: 'Ngoài thẩm quyền AI; dùng kháng sinh/thuốc ngủ không đơn không đảo được (R5, R6).'
+        }
+      ];
+
+      $('#tool-table-body').innerHTML = rows.map((r) => `
+        <tr class="${activeRows.has(r.id) ? 'is-active' : ''}">
+          <td>${r.tool.replace(/<code>/g, '<code class="tool-code">')}</td>
+          <td>${r.level}</td>
+          <td>${r.reason}</td>
+        </tr>
+      `).join('');
+
+      // 3. Nút chuyển trạng thái thành công/thất bại & tua thời gian R7
+      $('#btn-sim-ok').classList.toggle('selected', state.transferOk);
+      $('#btn-sim-fail').classList.toggle('selected', !state.transferOk);
+
+      const timeBar = $('#time-demo-bar');
+      if (isR7) {
+        timeBar.style.display = 'flex';
+        timeBar.innerHTML = `
+          <span class="demo-group-label">Tua thời gian R7:</span>
+          <button type="button" class="btn subtle" id="btn-t2" ${state.r7.reminded2m ? 'disabled' : ''}>+2 phút (nhắc khách 1 lần)</button>
+          <button type="button" class="btn subtle" id="btn-t3" ${state.r7.escalated3m ? 'disabled' : ''}>+3 phút (báo lại &amp; trưởng ca)</button>
+        `;
+      } else {
+        timeBar.style.display = 'none';
+        timeBar.innerHTML = '';
+      }
+
+      // 4. Bảng mô phỏng phía dược sĩ trực
+      renderPharmacistPanel();
+
+      // 5. Danh sách chú thích HAX / PAIR
+      const anns = [
+        ['①', 'G1 / G2 · Làm rõ phạm vi & giới hạn AI', 'Gắn ở nhãn “Trợ lý AI”, lời giới thiệu §4.4 và câu “có thể mình đang lo quá mức” ở R7.'],
+        ['②', 'G10 · Thu hẹp phạm vi khi nghi ngờ', 'Ở R3 lượt 1: khoá thẻ gợi ý, chỉ hỏi 1 câu “Thuốc này cho ai dùng ạ?” kèm 5 nút chọn nhanh.'],
+        ['③', 'G11 · Giải thích vì sao', 'R7 trích nguyên văn 3 cụm chữ của khách trong “Vì sao mình nói vậy”; R3 nêu lý do trước khi hỏi.'],
+        ['④', 'G9 · Sửa dễ dàng', 'R7 có nút “Ông vẫn tỉnh táo, mình tả chưa đúng”; R3 có nút “Đổi” ngay trên thẻ gợi ý.'],
+        ['⑤', 'PAIR · Errors + Graceful Failure', 'R7 thu gọn thẻ vẫn giữ cảnh báo, báo trưởng ca khi quá 3 phút, tách trạng thái hệ thống khi chuyển lỗi; R3 mở đường sửa “Bé đã uống chưa?”.']
+      ];
+
+      $('#ann-list').innerHTML = anns.map((a) => `
+        <li>
+          <span class="ann-num">${a[0]}</span>
+          <div><strong>${a[1]}</strong> — ${a[2]}</div>
+        </li>
+      `).join('');
+    }
+
+    function renderPharmacistPanel() {
+      const box = $('#pharmacist-panel');
+      if (state.activeCase === 'r7') {
+        const r7 = state.r7;
+        if (!state.transferOk) {
+          box.innerHTML = `
+            <div class="pharma-queue-card urgent">
+              <strong>Hàng chờ dược sĩ: Lỗi chuyển ca (mô phỏng)</strong>
+              <p style="margin:6px 0 0;">Tool <code>chuyen_duoc_si</code> trả về thất bại → khách vẫn thấy thẻ cảnh báo khẩn &amp; nút Gọi 115 độc lập; hệ thống cảnh báo kỹ thuật/trưởng ca.</p>
+            </div>
+          `;
+          return;
+        }
+
+        box.innerHTML = `
+          <div class="pharma-queue-card urgent">
+            <strong>Thẻ đỏ đầu hàng dược sĩ · ${r7.corrected ? 'ƯU TIÊN CAO NHẤT (khách báo tả chưa đúng)' : 'Đã nhận lúc 21:04'}</strong>
+            <p style="margin:6px 0 4px;"><strong>Tin gốc:</strong> “Cho mình đặt 2 hộp Oresol giao gấp với. Ông nội 80 tuổi nôn ói từ sáng tới giờ, giờ gọi ông không tỉnh lắm, cứ lơ mơ.”</p>
+            <p style="margin:0;"><strong>AI đã làm:</strong> Hiện thẻ khuyên gọi 115 lúc 21:04 · Oresol: chưa đặt (đang khoá). ${r7.escalated3m ? '<strong>Quá 3 phút chưa mở ca → đã báo lại dược sĩ &amp; báo trưởng ca.</strong>' : ''}</p>
+          </div>
+        `;
+        return;
+      }
+
+      const r3 = state.r3;
+      if (r3.step === 'adult_pending_approval') {
+        box.innerHTML = `
+          <div class="pharma-queue-card review">
+            <strong>Hàng duyệt dược sĩ · Nhánh B (Người lớn, đủ 5 trường)</strong>
+            <div style="margin-top:4px; font-size:13.5px;">
+              Tóm tắt: Người dùng 28 tuổi · không mang thai/cho bú · không thuốc đang dùng · không bệnh nền/dị ứng · sốt 39°C từ chiều, chưa uống thuốc.
+            </div>
+            <div class="pharma-draft">
+              <strong>Bản nháp (<code>soan_goi_y</code>):</strong> Gợi ý nhóm sản phẩm hạ sốt không kê đơn phù hợp người lớn (minh họa, không ghi tên thuốc/liều cụ thể).
+            </div>
+            <div class="btn-group">
+              <button type="button" class="btn primary" id="btn-pharma-approve">Dược sĩ duyệt &amp; gửi</button>
+              <button type="button" class="btn subtle" id="btn-pharma-takeover">Nhận ca trực tiếp</button>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      if (r3.step === 'adult_approved') {
+        box.innerHTML = `
+          <div class="pharma-queue-card">
+            <strong>Dược sĩ trực:</strong> ${r3.pharmacistAction === 'takeover' ? 'Đã nhận ca chat trực tiếp với khách.' : 'Đã duyệt và gửi thẻ gợi ý minh họa (Nhánh B).'}
+          </div>
+        `;
+        return;
+      }
+
+      if (['under2_triage', 'under2_redflag', 'under2_waiting', 'risk_group_transfer', 'correction_drank', 'correction_drank_yes', 'correction_drank_no'].includes(r3.step)) {
+        if (!state.transferOk) {
+          box.innerHTML = `
+            <div class="pharma-queue-card urgent">
+              <strong>Hàng chờ dược sĩ: Chưa chuyển được ca (mô phỏng lỗi)</strong>
+              <p style="margin:6px 0 0;">Dòng trạng thái khách thấy: “Chưa chuyển được cho dược sĩ” — AI không nói dối đã chuyển.</p>
+            </div>
+          `;
+          return;
+        }
+        const extra = r3.drankStatus === 'yes'
+          ? 'KHẨN: Khách báo bé 18 tháng ĐÃ UỐNG sản phẩm từ gợi ý nhầm!'
+          : (RED_FLAGS_R3.includes(r3.redFlag) ? `KHẨN: Khách chọn dấu hiệu “${escapeHtml(r3.redFlag)}”.` : 'Đang giữ ưu tiên, chờ dược sĩ phản hồi.');
+        box.innerHTML = `
+          <div class="pharma-queue-card ${r3.drankStatus === 'yes' || RED_FLAGS_R3.includes(r3.redFlag) ? 'urgent' : ''}">
+            <strong>Hàng ưu tiên dược sĩ · Đã chuyển lúc 23:42</strong>
+            <p style="margin:6px 0 0;">${extra}</p>
+          </div>
+        `;
+        return;
+      }
+
+      box.innerHTML = `
+        <div class="pharma-queue-card">
+          <strong>Hàng chờ dược sĩ:</strong> Chưa có ca chuyển ở bước này. Hãy chọn nhóm người dùng thuốc bên khung chat (ví dụ <em>Trẻ dưới 2 tuổi</em> hoặc <em>Mình (người lớn)</em>).
+        </div>
+      `;
+    }
+
+    /* ---------- GẮN SỰ KIỆN TƯƠNG TÁC ---------- */
+    function bindEvents() {
+      const call115 = $('#btn-call-115');
+      if (call115) {
+        call115.onclick = () => {
+          if (state.activeCase === 'r7') {
+            state.r7.called115 = true;
+          } else {
+            state.r3.called115 = true;
+          }
+          render();
+        };
+      }
+
+      const r7Correct = $('#btn-r7-correct');
+      if (r7Correct) {
+        r7Correct.onclick = () => {
+          state.r7.corrected = true;
+          state.r7.expanded = false;
+          render();
+        };
+      }
+
+      const expandPin = $('#btn-expand-pin');
+      if (expandPin) {
+        expandPin.onclick = () => {
+          state.r7.expanded = true;
+          render();
+        };
+      }
+
+      const collapsePin = $('#btn-collapse-pin');
+      if (collapsePin) {
+        collapsePin.onclick = () => {
+          state.r7.expanded = false;
+          render();
+        };
+      }
+
+      const btnT2 = $('#btn-t2');
+      if (btnT2) {
+        btnT2.onclick = () => {
+          state.r7.timeMin = Math.max(state.r7.timeMin, 2);
+          state.r7.reminded2m = true;
+          render();
+        };
+      }
+
+      const btnT3 = $('#btn-t3');
+      if (btnT3) {
+        btnT3.onclick = () => {
+          state.r7.timeMin = 3;
+          state.r7.escalated3m = true;
+          render();
+        };
+      }
+
+      document.querySelectorAll('[data-who]').forEach((btn) => {
+        btn.onclick = () => {
+          const w = btn.dataset.who;
+          if (w === 'adult') {
+            state.r3.whoLabel = 'Mình (người lớn)';
+            state.r3.step = 'adult_screening';
+          } else if (w === 'under2') {
+            state.r3.whoLabel = 'Trẻ dưới 2 tuổi';
+            state.r3.step = 'ask_age_under2';
+          } else if (w === 'child2_12') {
+            state.r3.whoLabel = 'Trẻ 2–12 tuổi';
+            state.r3.step = 'risk_group_transfer';
+          } else if (w === 'elder65') {
+            state.r3.whoLabel = 'Người trên 65 tuổi';
+            state.r3.step = 'risk_group_transfer';
+          } else if (w === 'pregnant') {
+            state.r3.whoLabel = 'Đang mang thai / cho con bú';
+            state.r3.step = 'risk_group_transfer';
+          }
+          render();
+        };
+      });
+
+      const sendAge = $('#btn-send-age');
+      if (sendAge) {
+        sendAge.onclick = () => {
+          const inp = $('#input-age');
+          state.r3.ageInput = (inp && inp.value.trim()) ? inp.value.trim() : '18 tháng';
+          state.r3.step = 'under2_triage';
+          render();
+        };
+      }
+
+      document.querySelectorAll('[data-flag]').forEach((btn) => {
+        btn.onclick = () => {
+          const flag = btn.dataset.flag;
+          state.r3.redFlag = flag;
+          if (RED_FLAGS_R3.includes(flag)) {
+            state.r3.step = 'under2_redflag';
+          } else {
+            state.r3.step = 'under2_waiting';
+          }
+          render();
+        };
+      });
+
+      const loadScreening = $('#btn-load-screening');
+      if (loadScreening) {
+        loadScreening.onclick = () => {
+          state.r3.screeningLoaded = true;
+          state.r3.step = 'adult_pending_approval';
+          render();
+        };
+      }
+
+      const pharmaApprove = $('#btn-pharma-approve');
+      if (pharmaApprove) {
+        pharmaApprove.onclick = () => {
+          state.r3.pharmacistAction = 'approved';
+          state.r3.step = 'adult_approved';
+          render();
+        };
+      }
+
+      const pharmaTakeover = $('#btn-pharma-takeover');
+      if (pharmaTakeover) {
+        pharmaTakeover.onclick = () => {
+          state.r3.pharmacistAction = 'takeover';
+          state.r3.step = 'adult_approved';
+          render();
+        };
+      }
+
+      const changeWho = $('#btn-change-who');
+      if (changeWho) {
+        changeWho.onclick = () => {
+          state.r3.changingWho = !state.r3.changingWho;
+          render();
+        };
+      }
+
+      const cancelChange = $('#btn-cancel-change');
+      if (cancelChange) {
+        cancelChange.onclick = () => {
+          state.r3.changingWho = false;
+          render();
+        };
+      }
+
+      const switchBaby = $('#btn-switch-baby18m');
+      if (switchBaby) {
+        switchBaby.onclick = () => {
+          state.r3.changingWho = false;
+          state.r3.step = 'correction_drank';
+          render();
+        };
+      }
+
+      const drankNo = $('#btn-drank-no');
+      if (drankNo) {
+        drankNo.onclick = () => {
+          state.r3.cameFromCorrection = true;
+          state.r3.drankStatus = 'no';
+          state.r3.step = 'correction_drank_no';
+          render();
+        };
+      }
+
+      const drankYes = $('#btn-drank-yes');
+      if (drankYes) {
+        drankYes.onclick = () => {
+          state.r3.drankStatus = 'yes';
+          state.r3.step = 'correction_drank_yes';
+          render();
+        };
+      }
+    }
+
+    function render() {
+      document.body.classList.toggle('hide-ann', !state.showAnn);
+
+      document.querySelectorAll('.tab-btn').forEach((b) => {
+        b.classList.toggle('active', b.dataset.case === state.activeCase);
+      });
+
+      renderPinned();
+      $('#chat-stream').innerHTML = state.activeCase === 'r7' ? renderR7Stream() : renderR3Stream();
+      renderRightPanel();
+      bindEvents();
+    }
+
+    document.querySelectorAll('.tab-btn').forEach((b) => {
+      b.onclick = () => {
+        state.activeCase = b.dataset.case;
+        state.r7.called115 = false;
+        render();
+      };
+    });
+
+    $('#btn-reset').onclick = () => {
+      const keepCase = state.activeCase;
+      const keepAnn = state.showAnn;
+      state = createInitialState();
+      state.activeCase = keepCase;
+      state.showAnn = keepAnn;
+      render();
+    };
+
+    $('#toggle-ann').onchange = (e) => {
+      state.showAnn = e.target.checked;
+      render();
+    };
+
+    $('#btn-sim-ok').onclick = () => {
+      state.transferOk = true;
+      render();
+    };
+
+    $('#btn-sim-fail').onclick = () => {
+      state.transferOk = false;
+      render();
+    };
+
+    render();
+  </script>
+</body>
+</html>
