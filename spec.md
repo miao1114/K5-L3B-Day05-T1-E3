@@ -2,10 +2,10 @@
 **Lớp:** L3B · **Bàn / zone:** E3 · **Track:** T1
 
 | Họ và Tên | Mã Học Viên | Việc đã làm |
-| Nguyễn Đức Minh | 2A202603765 |---|
-| Phạm Thế Hùng |  |  |
-| Đào Thị Ngọc Ánh |  |  |
-|  |  |  |
+| Nguyễn Đức Minh | 2A202603765 | CP1 + CP2 + CP4|
+| Phạm Thế Hùng | 2A202603778 | CP1 + CP2 + CP5 |
+| Đào Thị Ngọc Ánh | 2A202603790 | CP1 + CP2 + CP3 |
+
 
 
 ## §1. Lát cắt & phạm vi
@@ -59,15 +59,61 @@ Với mỗi kịch bản đắt nhất:
 - Lỗi nào sửa câu chữ không cứu được (nếu có), và thiết kế cứu nó thế nào.
 
 ## §4. Mức tự chủ  (chặng 4)
-Với mỗi tool:
-- Mức của nhóm (tự làm / cần người duyệt / cấm). Nếu cần người duyệt: ai duyệt · người duyệt thấy gì · quá hạn thì sao.
-- Lý do theo cost-of-error: sai thì ai chịu gì · đảo lại được không · chờ người thì mất gì.
-- Phương án đã cân nhắc và vì sao loại.
-Thêm:
-- Tool khó xếp nhất: mỗi người từng chọn gì, cái giá của mỗi phía (trỏ về kịch bản ở §2), nhóm chốt thế nào.
-- Thử mức đã đặt trên 2 kịch bản đắt nhất + 1 kịch bản bình thường: cái sai có bị chặn không? còn việc nào làm khi lẽ ra phải hỏi? người dùng bình thường có phải chờ vô ích không?
-- Luật thêm hoặc tool tách bước (nếu có), và vì sao.
-- Một mức tự chủ đã đổi lời hứa nào với người dùng.
+
+Lát cắt có hai hướng sai ngược nhau: **làm liều** (gợi ý thuốc sai, không đảo được: R2, R3, R8) và **bắt chờ** (ca cấp cứu nằm trong hàng chờ: R7). Vì vậy tool *ngăn hại* được **tự làm**, còn tool **gây hại không đảo được** phải qua **người duyệt** hoặc bị **cấm**.
+
+### 4.1 Mức của từng tool
+
+| Tool | Mức | Sai thì ai chịu gì · đảo được không | Chờ người thì mất gì | Phương án đã loại, vì sao |
+|---|---|---|---|---|
+| `khuyen_di_kham` | **Tự làm**, ngay ở tin đầu khi có cờ đỏ | Báo thừa: khách lo, khách bỏ qua được. Báo thiếu: người bệnh trễ cấp cứu, **không đảo được** (R7). | Đúng những phút quan trọng nhất. Chờ duyệt chính là cái sai của R7. | *Dược sĩ duyệt trước khi hiện*: đêm khuya không ai duyệt kịp thì ca R7 nằm chờ. *Chỉ hiện dòng nhắc nhỏ cạnh gợi ý*: khách vẫn bấm đặt Oresol. |
+| `chuyen_duoc_si` | **Tự làm**, kèm thẻ tóm tắt | Chuyển thừa: dược sĩ mất vài phút, **đảo được**. Không chuyển khi cần: trẻ nhỏ, mẹ bầu nhận gợi ý từ AI (R2, R3). | Duyệt việc chuyển *sang người duyệt* chỉ thêm độ trễ. | *Chỉ chuyển khi khách yêu cầu*: khách R3 không biết mình cần dược sĩ. *Hỏi khách trước khi chuyển*: thêm một vòng hỏi cho một việc rẻ và đảo được. |
+| `goi_y_san_pham` | **Tách 3 nhánh** (4.2): tự làm / dược sĩ duyệt / cấm | Người dùng thuốc (bé 18 tháng R3, thai nhi R2) chịu hại; **không đảo được** khi thuốc đã dùng. | Thuốc: vài phút, đáng chờ. Vật tư (nước muối, khẩu trang): chờ là vô ích (R1). | Một mức chung cho cả tool: xem 4.2. |
+| `luu_ghi_chu_suc_khoe` | **Khách duyệt**, mặc định không lưu | Khách và người nhà bị lộ thông tin sức khoẻ, hoặc bệnh của người nhà bị gắn vào hồ sơ người nhắn (R6). Xoá được, **nhưng lộ thì không thu hồi được**. | Không mất gì: lưu chỉ tiện cho lần sau, không phục vụ ca đang xử lý. | *Tự làm*: R6. *Cấm hẳn*: mất trường hợp lưu có lợi (ghi "dị ứng penicillin" để dược sĩ thấy lần sau). |
+| `ban_thuoc_ke_don` | **Cấm** (AI không có nút) | Người dùng thuốc dùng kháng sinh, thuốc ngủ không qua bác sĩ (R5, R6); **không đảo được**. | Không mất gì: kiểm đơn là việc của dược sĩ ở quầy, ngoài luồng AI. | *Khách tự xác nhận "có đơn"*: lời khai không kiểm được. *Dược sĩ duyệt rồi AI bán*: khi đó dược sĩ mới là người quyết. |
+
+**Người duyệt, họ thấy gì, quá hạn thì sao:**
+- **`gui_goi_y` nhánh B:** dược sĩ trực duyệt. Dược sĩ thấy thẻ tóm tắt (người dùng thuốc, tuổi, mang thai / cho bú, bệnh nền, thuốc đang dùng, triệu chứng và thời gian, cờ đỏ, nguyên văn tin khách) cùng gợi ý AI soạn, rồi bấm *Gửi* / *Sửa rồi gửi* / *Nhận ca*. Nếu quá 5 phút (giả định), AI **không tự gửi**: báo khách thời gian chờ và cách khác (nhà thuốc gần nhất, hotline), nhắc dấu hiệu cần đi khám, và báo trưởng ca.
+- **`luu_ghi_chu_suc_khoe`:** chủ tài khoản duyệt. Họ thấy nguyên văn nội dung sẽ lưu, hồ sơ của ai (bắt buộc chọn), và ai xem được tài khoản này. Không trả lời thì **không lưu**.
+
+### 4.2 Tool khó xếp nhất: `goi_y_san_pham`
+
+| Phương án đã cân nhắc | Lập luận | Cái giá (trỏ về §2) |
+|---|---|---|
+| **Tự làm** sau sàng lọc | Lát cắt cho AI gợi ý; khách nửa đêm "đừng bắt mình chờ" | **R3**: tin không có chữ nào báo trẻ nhỏ. **R2**: đọc ảnh "trúng" là đúng vì may. Thuốc đã dùng thì không đảo được. |
+| **Dược sĩ duyệt mọi gợi ý** | Mọi gợi ý thuốc đều không đảo được | **R1**: mua nước muối cũng phải chờ. Hàng chờ phình to làm **R7, R3 bị chôn** giữa các ca vật tư. |
+| **Cấm**, AI chỉ chuyển dược sĩ | An toàn tuyệt đối về phía AI | Như trên, cộng thêm mất giá trị lát cắt; khách bỏ kênh, tự mua theo mạng (R2 xảy ra ngoài hệ thống). |
+
+**Cách chốt.** Ba phương án tranh luận về một tool, nhưng thật ra là ba loại tình huống với ba mức rủi ro. Nhóm **tách tool**: `soan_goi_y` (AI soạn, khách chưa thấy, tự làm) và `gui_goi_y` (gửi kèm nút đặt), rồi đặt mức cho `gui_goi_y` theo **người dùng thuốc và loại sản phẩm**, không theo độ tự tin của model:
+
+| Nhánh | Điều kiện | Mức | Kịch bản |
+|---|---|---|---|
+| A · Vật tư | Thuộc danh sách "không cần sàng lọc" do dược sĩ phụ trách duyệt trước (nước muối, khẩu trang, nhiệt kế…) | **Tự làm**, khách huỷ được trước khi giao | R1, khẩu trang ở R4 |
+| B · Thuốc không kê đơn | Người lớn, đủ 5 trường sàng lọc, không thuộc nhánh C | **Dược sĩ duyệt** | Đau họng người lớn |
+| C · Nhóm nguy cơ | Trẻ nhỏ, người ≥ 65 tuổi, mang thai / cho bú, bệnh mạn, đang dùng thuốc kê đơn, tự dùng thuốc nhiều ngày không đỡ, cờ đỏ, hoặc khách nhắc tới thuốc kê đơn | **Cấm**: chỉ `chuyen_duoc_si` (+ `khuyen_di_kham` nếu có cờ đỏ) | R2, R3, R5–R8, phần thuốc ở R4 |
+
+**Luật đi kèm:**
+1. **Cổng người dùng thuốc:** thiếu một trong 5 trường (rubric riêng T1 mục 1: ai dùng & tuổi · mang thai / cho bú · thuốc đang dùng · bệnh mạn / dị ứng · bao lâu & đã dùng gì) thì không vào được nhánh B. AI hỏi từng trường, có nút chọn nhanh. Luật này chặn R3 mà không cần từ khoá.
+2. **Cờ đỏ đi trước mọi yêu cầu trong cùng tin:** khoá nút đặt và gọi `khuyen_di_kham` ngay (R7).
+3. **Tách yêu cầu trong một tin:** vật tư không phải chờ phần thuốc (R4).
+4. **Không nói liều; không gợi ý "loại tương tự" cho thuốc kê đơn** (R5; rubric riêng T1 mục 5, 6).
+5. **Khách nói "đừng lưu" thì khoá `luu_ghi_chu_suc_khoe` cả phiên** (R6).
+
+### 4.3 Thử mức trên 3 kịch bản
+
+| Kịch bản | AI làm gì | Cái sai bị chặn? | Còn làm khi lẽ ra phải hỏi? | Khách bình thường chờ vô ích? |
+|---|---|---|---|---|
+| **R7** · Oresol + ông 80 tuổi lơ mơ | Cờ đỏ → `khuyen_di_kham` ở tin đầu ("gọi 115 / đưa ông tới viện ngay"); khoá nút đặt; `chuyen_duoc_si` chạy song song, ưu tiên cao nhất | **Có** | Không hỏi lại "có thật lơ mơ không" (cố ý: báo thừa rẻ hơn hỏi chậm). **Còn lỗi:** mô tả lạ có thể lọt danh sách cờ đỏ, nhưng ông ≥ 65 tuổi vẫn vào nhánh C nên không có gợi ý thuốc. | Không áp dụng |
+| **R3** · hạ sốt, không nói ai dùng | Cổng chặn `gui_goi_y` → AI hỏi "Thuốc cho ai dùng?" [Tôi / Trẻ em / Người cao tuổi / Mẹ bầu] → trẻ 18 tháng → nhánh C: chuyển dược sĩ ưu tiên, hỏi cờ đỏ ở trẻ | **Có** | **Còn lỗi:** khách bấm nhầm "Tôi" thì ca vào nhánh B, nhưng dược sĩ duyệt vẫn thấy nguyên văn tin. Đây là lý do nhánh B không được tự làm. | Phải chờ (cố ý), nhưng khách thấy thời gian dự kiến và dấu hiệu cần gọi 115 |
+| **R1** · nước muối, 10h tối qua lấy | Nhánh A: trả lời ngay kèm nút đặt giao; nói rõ "chưa kiểm tra được hàng và giờ mở cửa của chi nhánh" | **Có** (chặn bằng câu chữ, vì không có tool tồn kho) | Không, vì sản phẩm không cần sàng lọc | **Không**: không vào hàng chờ dược sĩ |
+
+### 4.4 Lời hứa với người dùng đã đổi
+
+Nếu `goi_y_san_pham` là tự làm, kênh hứa *"Hỏi AI là có thuốc ngay"*. Với 3 nhánh, lời hứa đổi thành:
+
+> *"Trợ lý AI trả lời ngay về sản phẩm thông thường và **báo ngay nếu có dấu hiệu cần đi khám**. Với thuốc, AI hỏi về **người sẽ dùng thuốc**, rồi **dược sĩ xác nhận** trước khi gợi ý tới tay bạn."*
+
+Lời hứa này hiện ở dòng giới thiệu đầu khung chat và trên nhãn "Chờ dược sĩ xác nhận" của thẻ gợi ý thuốc (§5).
 
 ## §5. Prototype  (chặng 5)
 - Link hoặc file · công cụ · phần nào mock · có lời gọi AI thật không.
@@ -75,7 +121,8 @@ Thêm:
 - Quyết định: cách hiện độ chắc/bằng chứng và điều khiển mức tự chủ — đã nghĩ tới cách nào khác, vì sao chọn cách này.
 
 ## §6. Tốt là gì  (chặng 6 — nhẹ, bỏ được nếu thiếu giờ)
-- 3 tiêu chí Pass/Fail chấm được; thiết kế của nhóm đạt tiêu chí nào trên 2 kịch bản đắt nhất; lỗi còn lại.
+
+**3 tiêu chí Pass/Fail.** Chấm bằng cách đọc hội thoại; người ngoài nhóm chấm cũng ra cùng kết quả.
 
 ## §7. Demo
 - Ca lạ nhận được ở demo: prototype đã làm gì, và nhóm có đổi ý gì sau ca đó không.
